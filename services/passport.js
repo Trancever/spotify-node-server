@@ -18,7 +18,7 @@ passport.use(
     {
       clientID: keys.CLIENT_ID,
       clientSecret: keys.CLIENT_SECRET,
-      callbackUrl: '/auth/callback',
+      callbackURL: '/auth/callback',
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
