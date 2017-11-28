@@ -2,6 +2,7 @@ const passport = require('passport')
 const SpotifyStrategy = require('passport-spotify').Strategy
 const mongoose = require('mongoose')
 const keys = require('../config/keys')
+const CryptoJS = require('crypto-js')
 
 const User = mongoose.model('users')
 
@@ -22,13 +23,34 @@ passport.use(
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
-      const existingUser = await User.findOne({ spotifyId: profile.Id })
+      const encryptedAccessToken = CryptoJS.AES
+        .encrypt(accessToken, keys.CRYPT_KEY)
+        .toString()
+      const encryptedRefreshToken = CryptoJS.AES
+        .encrypt(refreshToken, keys.CRYPT_KEY)
+        .toString()
+
+      const existingUser = await User.findOne({ spotifyId: profile.id })
       if (existingUser) {
         // User found
-        return done(null, existingUser)
+        await User.update(
+          { spotifyId: profile.id },
+          {
+            accessToken: encryptedAccessToken,
+            refreshToken: encryptedRefreshToken,
+          }
+        )
+        const user = await User.findOne({ spotifyId: profile.id })
+        console.log(user)
+        return done(null, user)
       }
       // User not found, create one
-      const newUser = await new User({ spotifyId: profile.id }).save()
+      console.log('User not found, profile.id - ', profile.id)
+      const newUser = await new User({
+        spotifyId: profile.id,
+        accessToken: encryptedAccessToken,
+        refreshToken: encryptedRefreshToken,
+      }).save()
       done(null, newUser)
     }
   )
