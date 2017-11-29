@@ -4,6 +4,7 @@ const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const keys = require('./config/keys')
+const decryptMiddleware = require('./middlewares/descryptMiddleware')
 require('./models/user')
 require('./services/passport')
 
@@ -20,6 +21,7 @@ app.use(
 )
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(decryptMiddleware)
 
 require('./routes/authRoutes')(app)
 

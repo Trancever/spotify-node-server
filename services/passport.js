@@ -23,12 +23,14 @@ passport.use(
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
-      const encryptedAccessToken = CryptoJS.AES
-        .encrypt(accessToken, keys.CRYPT_KEY)
-        .toString()
-      const encryptedRefreshToken = CryptoJS.AES
-        .encrypt(refreshToken, keys.CRYPT_KEY)
-        .toString()
+      const encryptedAccessToken = CryptoJS.AES.encrypt(
+        accessToken,
+        keys.CRYPT_KEY
+      ).toString()
+      const encryptedRefreshToken = CryptoJS.AES.encrypt(
+        refreshToken,
+        keys.CRYPT_KEY
+      ).toString()
 
       const existingUser = await User.findOne({ spotifyId: profile.id })
       if (existingUser) {
@@ -41,11 +43,9 @@ passport.use(
           }
         )
         const user = await User.findOne({ spotifyId: profile.id })
-        console.log(user)
         return done(null, user)
       }
       // User not found, create one
-      console.log('User not found, profile.id - ', profile.id)
       const newUser = await new User({
         spotifyId: profile.id,
         accessToken: encryptedAccessToken,
