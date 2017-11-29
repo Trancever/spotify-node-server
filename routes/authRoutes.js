@@ -7,7 +7,7 @@ module.exports = app => {
 
   app.get(
     '/auth/callback',
-    passport.authenticate('spotify', { failureRedirect: '/login' }),
+    passport.authenticate('spotify', { scope: ['user-library-read'] }),
     (req, res) => {
       res.redirect('/')
     }
