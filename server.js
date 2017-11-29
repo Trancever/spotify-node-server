@@ -5,6 +5,8 @@ const bodyParser = require('body-parser')
 const passport = require('passport')
 const keys = require('./config/keys')
 const decryptMiddleware = require('./middlewares/descryptMiddleware')
+const graphQL = require('express-graphql')
+const GraphQlSchema = require('./schema/spotifySchema')
 require('./models/user')
 require('./services/passport')
 
@@ -22,6 +24,13 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(decryptMiddleware)
+app.use(
+  '/graphql',
+  graphQL({
+    schema: GraphQlSchema,
+    graphiql: true,
+  })
+)
 
 require('./routes/authRoutes')(app)
 
