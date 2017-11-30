@@ -1,1 +1,5 @@
-module.exports = ['user-library-read']
+module.exports = [
+  'user-library-read',
+  'playlist-read-private',
+  'playlist-read-collaborative',
+]

@@ -5,6 +5,7 @@ const {
   GraphQLInt,
   GraphQLList,
   GraphQLBoolean,
+  GraphQLNonNull,
 } = graphql
 const axios = require('axios')
 
@@ -62,9 +63,21 @@ const ArtistType = new GraphQLObjectType({
   },
 })
 
+const OwnerType = new GraphQLObjectType({
+  name: 'Owner',
+  fields: {
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    id: { type: GraphQLString },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+})
+
 const TrackType = new GraphQLObjectType({
   name: 'Track',
-  fields: {
+  fields: () => ({
+    album: { type: AlbumType },
     artists: { type: new GraphQLList(ArtistType) },
     disc_number: { type: GraphQLInt },
     duration_ms: { type: GraphQLInt },
@@ -74,9 +87,18 @@ const TrackType = new GraphQLObjectType({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
     preview_url: { type: GraphQLString },
-    track_number: { type: GraphQLString },
+    track_number: { type: GraphQLInt },
     type: { type: GraphQLString },
     uri: { type: GraphQLString },
+  }),
+})
+
+const TrackItemType = new GraphQLObjectType({
+  name: 'TrackItem',
+  fields: {
+    added_at: { type: GraphQLString },
+    is_local: { type: GraphQLBoolean },
+    track: { type: TrackType },
   },
 })
 
@@ -84,7 +106,7 @@ const TracksType = new GraphQLObjectType({
   name: 'Tracks',
   fields: {
     href: { type: GraphQLString },
-    items: { type: new GraphQLList(TrackType) },
+    items: { type: new GraphQLList(TrackItemType) },
     limit: { type: GraphQLInt },
     next: { type: GraphQLString },
     offset: { type: GraphQLInt },
@@ -141,6 +163,45 @@ const CurrentUserType = new GraphQLObjectType({
   },
 })
 
+const SimpleTrackType = new GraphQLObjectType({
+  name: 'SimpleTrack',
+  fields: {
+    href: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
+const PlayListType = new GraphQLObjectType({
+  name: 'Playlist',
+  fields: {
+    collaborative: { type: GraphQLString },
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    id: { type: GraphQLString },
+    images: { type: new GraphQLList(ImageType) },
+    name: { type: GraphQLString },
+    owner: { type: OwnerType },
+    public: { type: GraphQLBoolean },
+    snapshot_id: { type: GraphQLString },
+    tracks: { type: SimpleTrackType },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+})
+
+const PlaylistsType = new GraphQLObjectType({
+  name: 'Playlists',
+  fields: {
+    href: { type: GraphQLString },
+    items: { type: new GraphQLList(PlayListType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -171,6 +232,39 @@ const RootQuery = new GraphQLObjectType({
               Authorization: 'Bearer ' + req.accessToken,
             },
           })
+          .then(res => res.data)
+      },
+    },
+    myPlaylists: {
+      type: PlaylistsType,
+      resolve(parentValue, args, req) {
+        return axios
+          .get('https://api.spotify.com/v1/me/playlists', {
+            headers: {
+              Authorization: 'Bearer ' + req.accessToken,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
+    Tracks: {
+      type: TracksType,
+      args: {
+        userId: { type: new GraphQLNonNull(GraphQLString) },
+        playlistId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { userId, playlistId }, req) {
+        return axios.default
+          .get(
+            `https://api.spotify.com/v1/users/${userId}/playlists/${
+              playlistId
+            }/tracks`,
+            {
+              headers: {
+                Authorization: 'Bearer ' + req.accessToken,
+              },
+            }
+          )
           .then(res => res.data)
       },
     },
