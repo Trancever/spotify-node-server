@@ -1,5 +1,11 @@
 const graphql = require('graphql')
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = graphql
+const {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLBoolean,
+} = graphql
 const axios = require('axios')
 
 const FollowersType = new GraphQLObjectType({
@@ -44,11 +50,54 @@ const UserType = new GraphQLObjectType({
   },
 })
 
+const ArtistType = new GraphQLObjectType({
+  name: 'Artist',
+  fields: {
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+})
+
+const TrackType = new GraphQLObjectType({
+  name: 'Track',
+  fields: {
+    artists: { type: new GraphQLList(ArtistType) },
+    disc_number: { type: GraphQLInt },
+    duration_ms: { type: GraphQLInt },
+    explicit: { type: GraphQLBoolean },
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    preview_url: { type: GraphQLString },
+    track_number: { type: GraphQLString },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+})
+
+const TracksType = new GraphQLObjectType({
+  name: 'Tracks',
+  fields: {
+    href: { type: GraphQLString },
+    items: { type: new GraphQLList(TrackType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
 const AlbumType = new GraphQLObjectType({
   name: 'Album',
   fields: {
     album_type: { type: GraphQLString },
-    artists: { type: new GraphQLList(UserType) },
+    artists: { type: new GraphQLList(ArtistType) },
     external_urls: { type: ExternalUrlsType },
     href: { type: GraphQLString },
     id: { type: GraphQLString },
@@ -56,6 +105,9 @@ const AlbumType = new GraphQLObjectType({
     name: { type: GraphQLString },
     popularity: { type: GraphQLInt },
     release_date: { type: GraphQLString },
+    tracks: { type: TracksType },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
   },
 })
 
@@ -72,12 +124,32 @@ const AlbumsType = new GraphQLObjectType({
   fields: {
     href: { type: GraphQLString },
     items: { type: new GraphQLList(ItemType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
+const CurrentUserType = new GraphQLObjectType({
+  name: 'CurrentUser',
+  fields: {
+    spotifyId: { type: GraphQLString },
+    accessToken: { type: GraphQLString },
+    refreshToken: { type: GraphQLString },
   },
 })
 
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
+    currentUser: {
+      type: CurrentUserType,
+      resolve(parentValue, args, req) {
+        return req.user
+      },
+    },
     me: {
       type: UserType,
       resolve(parentValue, args, req) {
