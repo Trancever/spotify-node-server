@@ -95,7 +95,7 @@ const TrackItemType = new GraphQLObjectType({
   },
 })
 
-const TracksType = new GraphQLObjectType({
+const PlayListTracksType = new GraphQLObjectType({
   name: 'Tracks',
   fields: {
     href: { type: GraphQLString },
@@ -120,7 +120,7 @@ const AlbumType = new GraphQLObjectType({
     name: { type: GraphQLString },
     popularity: { type: GraphQLInt },
     release_date: { type: GraphQLString },
-    tracks: { type: TracksType },
+    tracks: { type: PlayListTracksType },
     type: { type: GraphQLString },
     uri: { type: GraphQLString },
   },
@@ -246,6 +246,19 @@ const CategoriesType = new GraphQLObjectType({
   },
 })
 
+const CategoryPlaylistsType = new GraphQLObjectType({
+  name: 'CategoryPlaylists',
+  fields: {
+    href: { type: GraphQLString },
+    items: { type: new GraphQLList(PlayListType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -315,8 +328,8 @@ const RootQuery = new GraphQLObjectType({
           .then(res => res.data)
       },
     },
-    myTracks: {
-      type: TracksType,
+    myPlaylistTracks: {
+      type: PlayListTracksType,
       args: {
         userId: { type: new GraphQLNonNull(GraphQLString) },
         playlistId: { type: new GraphQLNonNull(GraphQLString) },
@@ -325,14 +338,27 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parentValue, { userId, playlistId, limit = 20, offset = 0 }, req) {
         return axios
-          .get(
-            `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
-            {
-              headers: {
-                Authorization: 'Bearer ' + req.accessToken,
-              },
-            }
-          )
+          .get(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`, {
+            headers: {
+              Authorization: 'Bearer ' + req.accessToken,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
+    myTracks: {
+      type: PlayListTracksType,
+      args: {
+        offset: { type: GraphQLInt },
+        limit: { type: GraphQLInt },
+      },
+      resolve(parentValue, { limit = 20, offset = 0 }, req) {
+        return axios
+          .get(`https://api.spotify.com/v1/me/tracks?limit=${limit}&offset=${offset}`, {
+            headers: {
+              Authorization: 'Bearer ' + req.accessToken,
+            },
+          })
           .then(res => res.data)
       },
     },
@@ -394,6 +420,27 @@ const RootQuery = new GraphQLObjectType({
             },
           })
           .then(res => res.data.categories)
+      },
+    },
+    categoryPlaylists: {
+      type: CategoryPlaylistsType,
+      args: {
+        offset: { type: GraphQLInt },
+        limit: { type: GraphQLInt },
+        country: { type: GraphQLString },
+        categoryId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { offset = 0, limit = 20, country, categoryId }, req) {
+        const url = country
+          ? `https://api.spotify.com/v1/browse/categories/${categoryId}/playlists?country=${country}&offset=${offset}&limit=${limit}`
+          : `https://api.spotify.com/v1/browse/categories/${categoryId}/playlists?offset=${offset}&limit=${limit}`
+        return axios
+          .get(url, {
+            headers: {
+              Authorization: 'Bearer ' + req.accessToken,
+            },
+          })
+          .then(res => res.data.playlists)
       },
     },
   },
