@@ -23,14 +23,8 @@ passport.use(
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
-      const encryptedAccessToken = CryptoJS.AES.encrypt(
-        accessToken,
-        keys.CRYPT_KEY
-      ).toString()
-      const encryptedRefreshToken = CryptoJS.AES.encrypt(
-        refreshToken,
-        keys.CRYPT_KEY
-      ).toString()
+      const encryptedAccessToken = CryptoJS.AES.encrypt(accessToken, keys.CRYPT_KEY).toString()
+      const encryptedRefreshToken = CryptoJS.AES.encrypt(refreshToken, keys.CRYPT_KEY).toString()
 
       const existingUser = await User.findOne({ spotifyId: profile.id })
       if (existingUser) {
