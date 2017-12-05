@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
       keys.CRYPT_KEY
     ).toString(CryptoJS.enc.Utf8)
   }
-  console.log(req.accessToken)
+
   if (req.user && req.user.refreshToken) {
     req.refreshToken = CryptoJS.AES.decrypt(
       req.user.refreshToken,
