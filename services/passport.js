@@ -19,7 +19,7 @@ passport.use(
     {
       clientID: keys.CLIENT_ID,
       clientSecret: keys.CLIENT_SECRET,
-      callbackURL: '/auth/callback',
+      callbackURL: 'http://localhost:3000',
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
