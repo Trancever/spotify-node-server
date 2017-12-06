@@ -7,6 +7,7 @@ const keys = require('./config/keys')
 const decryptMiddleware = require('./middlewares/descryptMiddleware')
 const graphQL = require('express-graphql')
 const GraphQlSchema = require('./schema/spotifySchema')
+const cors = require('cors')
 require('./models/user')
 require('./services/passport')
 
@@ -14,6 +15,7 @@ mongoose.connect(keys.MONGO_URI)
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json())
 app.use(
   cookieSession({
