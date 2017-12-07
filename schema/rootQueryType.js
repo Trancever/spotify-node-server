@@ -168,6 +168,7 @@ const PlayListType = new GraphQLObjectType({
   name: 'Playlist',
   fields: {
     collaborative: { type: GraphQLString },
+    description: { type: GraphQLString },
     external_urls: { type: ExternalUrlsType },
     href: { type: GraphQLString },
     id: { type: GraphQLString },
