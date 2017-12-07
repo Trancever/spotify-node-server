@@ -322,12 +322,13 @@ const RootQuery = new GraphQLObjectType({
       args: {
         userId: { type: new GraphQLNonNull(GraphQLString) },
         playlistId: { type: new GraphQLNonNull(GraphQLString) },
+        token: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve(parentValue, { userId, playlistId, limit = 20, offset = 0 }, req) {
+      resolve(parentValue, { userId, playlistId, limit = 20, offset = 0, token }, req) {
         return axios
           .get(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}`, {
             headers: {
-              Authorization: 'Bearer ' + req.accessToken,
+              Authorization: 'Bearer ' + token,
             },
           })
           .then(res => res.data)
