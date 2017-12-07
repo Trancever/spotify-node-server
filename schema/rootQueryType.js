@@ -270,11 +270,14 @@ const RootQuery = new GraphQLObjectType({
     },
     me: {
       type: UserType,
-      resolve(parentValue, args, req) {
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { token }, req) {
         return axios
           .get(`https://api.spotify.com/v1/me`, {
             headers: {
-              Authorization: 'Bearer ' + req.accessToken,
+              Authorization: 'Bearer ' + token,
             },
           })
           .then(res => res.data)
