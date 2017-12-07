@@ -285,7 +285,7 @@ const RootQuery = new GraphQLObjectType({
       args: {
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt },
-        token: { type: GraphQLString },
+        token: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve(parentValue, { limit = 20, offset = 0, token }, req) {
         return axios
@@ -302,12 +302,13 @@ const RootQuery = new GraphQLObjectType({
       args: {
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt },
+        token: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve(parentValue, { limit = 20, offset = 0 }, req) {
+      resolve(parentValue, { limit = 20, offset = 0, token }, req) {
         return axios
           .get(`https://api.spotify.com/v1/me/playlists?limit=${limit}&offset=${offset}`, {
             headers: {
-              Authorization: 'Bearer ' + req.accessToken,
+              Authorization: 'Bearer ' + token,
             },
           })
           .then(res => res.data)
