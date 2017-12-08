@@ -108,6 +108,19 @@ const PlayListTracksType = new GraphQLObjectType({
   },
 })
 
+const AlbumTracksType = new GraphQLObjectType({
+  name: 'AlbumTracks',
+  fields: {
+    href: { type: GraphQLString },
+    items: { type: new GraphQLList(TrackType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
 const AlbumType = new GraphQLObjectType({
   name: 'Album',
   fields: {
@@ -120,7 +133,7 @@ const AlbumType = new GraphQLObjectType({
     name: { type: GraphQLString },
     popularity: { type: GraphQLInt },
     release_date: { type: GraphQLString },
-    tracks: { type: PlayListTracksType },
+    tracks: { type: AlbumTracksType },
     type: { type: GraphQLString },
     uri: { type: GraphQLString },
   },
@@ -449,6 +462,22 @@ const RootQuery = new GraphQLObjectType({
             },
           })
           .then(res => res.data.playlists)
+      },
+    },
+    album: {
+      type: AlbumType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        albumId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { token, albumId }, req) {
+        return axios
+          .get(`https://api.spotify.com/v1/albums/${albumId}`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+          .then(res => res.data)
       },
     },
   },
