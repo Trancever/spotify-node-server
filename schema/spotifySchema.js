@@ -486,7 +486,7 @@ const RootQueryType = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    saveUser: {
+    removeAlbumFromSaved: {
       type: AlbumType,
       args: {
         token: { type: new GraphQLNonNull(GraphQLString) },
@@ -494,7 +494,7 @@ const mutation = new GraphQLObjectType({
       },
       resolve(parentValue, { token, albumId }) {
         return axios
-          .put(
+          .delete(
             'https://api.spotify.com/v1/me/albums',
             {
               ids: [albumId],
