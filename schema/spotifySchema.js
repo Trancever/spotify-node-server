@@ -490,11 +490,33 @@ const mutation = new GraphQLObjectType({
       type: AlbumType,
       args: {
         token: { type: new GraphQLNonNull(GraphQLString) },
-        albumId: { type: GraphQLString },
+        albumId: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve(parentValue, { token, albumId }) {
         return axios
           .delete(
+            'https://api.spotify.com/v1/me/albums',
+            {
+              ids: [albumId],
+            },
+            {
+              headers: {
+                Authorization: 'Bearer ' + token,
+              },
+            }
+          )
+          .then(res => res.data)
+      },
+    },
+    saveAlbumForUser: {
+      type: AlbumType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        albumId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { token, albumId }) {
+        return axios
+          .put(
             'https://api.spotify.com/v1/me/albums',
             {
               ids: [albumId],
