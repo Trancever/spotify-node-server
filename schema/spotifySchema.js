@@ -121,6 +121,24 @@ const AlbumTracksType = new GraphQLObjectType({
   },
 })
 
+const MockType = new GraphQLObjectType({
+  name: 'MockType',
+  fields: {
+    album_type: { type: GraphQLString },
+    artists: { type: new GraphQLList(ArtistType) },
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    id: { type: GraphQLString },
+    images: { type: new GraphQLList(ImageType) },
+    name: { type: GraphQLString },
+    popularity: { type: GraphQLInt },
+    release_date: { type: GraphQLString },
+    tracks: { type: AlbumTracksType },
+    type: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+})
+
 const AlbumType = new GraphQLObjectType({
   name: 'Album',
   fields: {
@@ -509,7 +527,7 @@ const mutation = new GraphQLObjectType({
       },
     },
     saveAlbumForUser: {
-      type: AlbumType,
+      type: MockType,
       args: {
         token: { type: new GraphQLNonNull(GraphQLString) },
         albumId: { type: new GraphQLNonNull(GraphQLString) },
