@@ -291,9 +291,30 @@ const CategoryPlaylistsType = new GraphQLObjectType({
   },
 })
 
+const checkUserAlbumType = new GraphQLObjectType({
+  name: 'CheckUserAlbum',
+  fields: {
+    data: { type: new GraphQLList(GraphQLBoolean) },
+  },
+})
+
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
+    checkUserAlbum: {
+      type: checkUserAlbumType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        albumId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { token, albumId }) {
+        return axios.get(`https://api.spotify.com/v1/me/albums/contains?ids=${albumId}`, {
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
+        })
+      },
+    },
     currentUser: {
       type: CurrentUserType,
       resolve(parentValue, args, req) {
