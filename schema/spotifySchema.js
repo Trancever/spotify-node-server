@@ -411,12 +411,13 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt },
+        token: { type: GraphQLString },
       },
-      resolve(parentValue, { limit = 20, offset = 0 }, req) {
+      resolve(parentValue, { token, limit = 20, offset = 0 }, req) {
         return axios
           .get(`https://api.spotify.com/v1/me/tracks?limit=${limit}&offset=${offset}`, {
             headers: {
-              Authorization: 'Bearer ' + req.accessToken,
+              Authorization: 'Bearer ' + token,
             },
           })
           .then(res => res.data)
