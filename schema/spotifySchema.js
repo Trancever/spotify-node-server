@@ -79,6 +79,7 @@ const UserArtistsType = new GraphQLObjectType({
     },
     total: { type: GraphQLInt },
     limit: { type: GraphQLInt },
+    offset: { type: GraphQLInt },
   },
 })
 
@@ -554,12 +555,12 @@ const RootQueryType = new GraphQLObjectType({
       },
       resolve(parentValue, { token, limit = 20 }) {
         return axios
-          .get(`https://api.spotify.com/v1/me/following?type=artist&limit=${limit}`, {
+          .get(`https://api.spotify.com/v1/me/top/artists`, {
             headers: {
               Authorization: 'Bearer ' + token,
             },
           })
-          .then(res => res.data.artists)
+          .then(res => res.data)
       },
     },
   },
