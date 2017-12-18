@@ -56,6 +56,32 @@ const ArtistType = new GraphQLObjectType({
   },
 })
 
+const ArtistDetailsType = new GraphQLObjectType({
+  name: 'ArtistDetailsType',
+  fields: {
+    external_urls: { type: ExternalUrlsType },
+    href: { type: GraphQLString },
+    followers: { type: FollowersType },
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    type: { type: GraphQLString },
+    images: { type: new GraphQLList(ImageType) },
+    popularite: { type: GraphQLInt },
+    uri: { type: GraphQLString },
+  },
+})
+
+const UserArtistsType = new GraphQLObjectType({
+  name: 'UserArtists',
+  fields: {
+    items: {
+      type: new GraphQLList(ArtistDetailsType),
+    },
+    total: { type: GraphQLInt },
+    limit: { type: GraphQLInt },
+  },
+})
+
 const OwnerType = new GraphQLObjectType({
   name: 'Owner',
   fields: {
@@ -521,18 +547,19 @@ const RootQueryType = new GraphQLObjectType({
       },
     },
     myArtists: {
-      type: ArtistType,
+      type: UserArtistsType,
       args: {
         token: { type: new GraphQLNonNull(GraphQLString) },
+        limit: { type: GraphQLInt },
       },
-      resolve(parentValue, { token }) {
+      resolve(parentValue, { token, limit = 20 }) {
         return axios
-          .get(`https://api.spotify.com/v1/me/following?type=artist`, {
+          .get(`https://api.spotify.com/v1/me/following?type=artist&limit=${limit}`, {
             headers: {
               Authorization: 'Bearer ' + token,
             },
           })
-          .then(res => res.data)
+          .then(res => res.data.artists)
       },
     },
   },
