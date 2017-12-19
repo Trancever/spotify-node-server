@@ -563,6 +563,22 @@ const RootQueryType = new GraphQLObjectType({
           .then(res => res.data)
       },
     },
+    artist: {
+      type: ArtistDetailsType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        artistId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { token, artistId }) {
+        return axios
+          .get(`https://api.spotify.com/v1/artists/${artistId}`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
   },
 })
 
