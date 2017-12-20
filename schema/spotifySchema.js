@@ -206,6 +206,19 @@ const ItemType = new GraphQLObjectType({
   },
 })
 
+const ArtistAlbumsType = new GraphQLObjectType({
+  name: 'ArtistAlbums',
+  fields: {
+    href: { type: GraphQLString },
+    items: { type: new GraphQLList(AlbumType) },
+    limit: { type: GraphQLInt },
+    next: { type: GraphQLString },
+    offset: { type: GraphQLInt },
+    previous: { type: GraphQLString },
+    total: { type: GraphQLInt },
+  },
+})
+
 const AlbumsType = new GraphQLObjectType({
   name: 'Albums',
   fields: {
@@ -619,6 +632,24 @@ const RootQueryType = new GraphQLObjectType({
       resolve(parentValue, { artistId, token }) {
         return axios
           .get(`https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
+    artistAlbums: {
+      type: ArtistAlbumsType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        artistId: { type: new GraphQLNonNull(GraphQLString) },
+        offset: { type: GraphQLInt },
+        limit: { type: GraphQLInt },
+      },
+      resolve(parentValue, { token, artistId, offset = 0, limit = 20 }) {
+        return axios
+          .get(`https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&offset=${offset}`, {
             headers: {
               Authorization: 'Bearer ' + token,
             },
