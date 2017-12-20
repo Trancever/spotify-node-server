@@ -120,6 +120,13 @@ const TracksType = new GraphQLObjectType({
   },
 })
 
+const ArtistsType = new GraphQLObjectType({
+  name: 'Artists',
+  fields: {
+    artists: { type: new GraphQLList(ArtistDetailsType) },
+  },
+})
+
 const TrackItemType = new GraphQLObjectType({
   name: 'TrackItem',
   fields: {
@@ -596,6 +603,22 @@ const RootQueryType = new GraphQLObjectType({
       resolve(parentValue, { artistId, token, country }) {
         return axios
           .get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?country=${country}`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
+    artistRelatedArtists: {
+      type: ArtistsType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        artistId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { artistId, token }) {
+        return axios
+          .get(`https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
             headers: {
               Authorization: 'Bearer ' + token,
             },
