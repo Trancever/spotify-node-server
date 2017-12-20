@@ -113,6 +113,13 @@ const TrackType = new GraphQLObjectType({
   }),
 })
 
+const TracksType = new GraphQLObjectType({
+  name: 'Tracks',
+  fields: {
+    tracks: { type: new GraphQLList(TrackType) },
+  },
+})
+
 const TrackItemType = new GraphQLObjectType({
   name: 'TrackItem',
   fields: {
@@ -123,7 +130,7 @@ const TrackItemType = new GraphQLObjectType({
 })
 
 const PlayListTracksType = new GraphQLObjectType({
-  name: 'Tracks',
+  name: 'PlaylistTracks',
   fields: {
     href: { type: GraphQLString },
     items: { type: new GraphQLList(TrackItemType) },
@@ -632,6 +639,22 @@ const mutation = new GraphQLObjectType({
                 Authorization: 'Bearer ' + token,
               },
             })
+          })
+          .then(res => res.data)
+      },
+    },
+    artistTopTracks: {
+      type: TracksType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        artistId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { artistId, token }) {
+        return axios
+          .get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
           })
           .then(res => res.data)
       },
