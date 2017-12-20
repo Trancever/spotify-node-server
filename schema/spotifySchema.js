@@ -586,6 +586,22 @@ const RootQueryType = new GraphQLObjectType({
           .then(res => res.data)
       },
     },
+    artistTopTracks: {
+      type: TracksType,
+      args: {
+        token: { type: new GraphQLNonNull(GraphQLString) },
+        artistId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, { artistId, token }) {
+        return axios
+          .get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks`, {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+          .then(res => res.data)
+      },
+    },
   },
 })
 
@@ -639,22 +655,6 @@ const mutation = new GraphQLObjectType({
                 Authorization: 'Bearer ' + token,
               },
             })
-          })
-          .then(res => res.data)
-      },
-    },
-    artistTopTracks: {
-      type: TracksType,
-      args: {
-        token: { type: new GraphQLNonNull(GraphQLString) },
-        artistId: { type: new GraphQLNonNull(GraphQLString) },
-      },
-      resolve(parentValue, { artistId, token }) {
-        return axios
-          .get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks`, {
-            headers: {
-              Authorization: 'Bearer ' + token,
-            },
           })
           .then(res => res.data)
       },
